@@ -34,6 +34,10 @@
     --serif: "Cormorant Garamond", "Times New Roman", serif;
     --sans: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
     --gutter: max(16px, env(safe-area-inset-left));
+    /* One motion language for the whole page */
+    --ease: cubic-bezier(.16, 1, .3, 1);          /* long, soft "expo-out" settle */
+    --ease-soft: cubic-bezier(.22, .61, .36, 1);
+    --dur: 1.15s;
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -123,12 +127,48 @@
     .glass { background: linear-gradient(150deg, rgba(40,58,110,.95), rgba(14,26,60,.96)); }
   }
 
-  /* ---------- Reveal on scroll ---------- */
-  .js .reveal { opacity: 0; transform: translateY(26px); transition: opacity 1s ease, transform 1s cubic-bezier(.2,.7,.2,1); }
-  .js .reveal.in { opacity: 1; transform: none; }
+  /* ---------- Reveal on scroll (one-shot, IntersectionObserver + scroll-sweep fallback) ----------
+     Text arrives blur-to-sharp. Glass elements never get a filter (a filter on a backdrop-filter
+     element or its ancestor cuts the glass off from what's behind it). */
+  .js .reveal {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+    filter: blur(6px);
+    transition: opacity var(--dur) var(--ease), transform calc(var(--dur) + .15s) var(--ease), filter var(--dur) var(--ease);
+  }
+  .js .reveal.in { opacity: 1; transform: none; filter: none; }
+  .js .glass.reveal, .js .portrait.reveal, .js .reveal.no-blur { filter: none; }
   .js .reveal.d1 { transition-delay: .12s; }
   .js .reveal.d2 { transition-delay: .24s; }
   .js .reveal.d3 { transition-delay: .36s; }
+
+  /* Headings are split into words by JS and arrive one word at a time */
+  .split .w { display: inline-block; }
+  .js .split.reveal { opacity: 1; transform: none; filter: none; }
+  .js .split .w {
+    opacity: 0;
+    transform: translate3d(0, .55em, 0) rotate(2.5deg);
+    transform-origin: 0 100%;
+    filter: blur(8px);
+    transition: opacity .95s var(--ease), transform 1.25s var(--ease), filter 1s var(--ease);
+  }
+  .js .split.in .w { opacity: 1; transform: none; filter: none; }
+
+  /* Scroll-linked layers (driven by one rAF scroll handler; no inline styles = settled state) */
+  .hero__veil {
+    position: absolute; inset: 0; z-index: 3;
+    background: linear-gradient(180deg, rgba(6,13,34,.6), var(--navy-950) 85%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .beat__veil {
+    position: absolute; inset: 0; z-index: -1;
+    background: var(--navy-950);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .motion .hero__inner, .motion .beat__panel, .motion .beat__photo, .motion .card { will-change: transform; }
+  .motion .hero__veil, .motion .beat__veil { will-change: opacity; }
 
   /* ============ HERO ============ */
   .hero {
@@ -543,6 +583,8 @@
     background: radial-gradient(closest-side, rgba(233,214,165,.22), rgba(233,214,165,0));
     z-index: -1;
   }
+  .js .card__crest.reveal { transform: translate3d(0, 14px, 0) scale(.82); transition-duration: 1.1s, 1.6s, 1.1s; }
+  .js .card__crest.reveal.in { transform: none; }
   .card__crest img {
     width: 100%; height: auto;
     filter: drop-shadow(0 0 14px rgba(233,214,165,.28)) drop-shadow(0 3px 4px rgba(0,0,0,.45));
@@ -705,7 +747,7 @@
     --glass-blur: 18px;
     transform: translate(-50%, 140%);
     opacity: 0;
-    transition: transform .5s cubic-bezier(.2,.8,.2,1), opacity .4s ease;
+    transition: transform .7s var(--ease), opacity .5s var(--ease-soft);
   }
   .navpill.show { transform: translate(-50%, 0); opacity: 1; }
   .navpill a {
@@ -743,8 +785,18 @@
     .navpill { background: rgba(14,26,60,.95); }
   }
 
+  /* Section jumps from the nav pill: land with clear space under the desktop top pill */
+  #invite, #journey { scroll-margin-top: 0; }
+  .card { scroll-margin-top: 96px; }
+  @media (min-width: 900px) {
+    .invite { padding-top: 112px; }
+  }
+
   /* ---------- Reduced motion ---------- */
   @media (prefers-reduced-motion: reduce) {
+    .js .split .w { opacity: 1; transform: none; filter: none; transition: none; }
+    .js .reveal { filter: none; }
+    .hero__veil, .beat__veil { display: none; }
     .hero__lights span { animation: none; }
     .navpill, .navpill a, .map-link { transition: none; }
     html { scroll-behavior: auto; }
@@ -755,7 +807,14 @@
     .btn { transition: none; }
   }
 </style>
-<script>document.documentElement.classList.add('js');</script>
+<script>
+  document.documentElement.classList.add('js');
+  /* Failsafe: if the main script never finishes setting up the reveal system,
+     drop the .js class so every hidden-until-revealed element simply shows. */
+  window.addEventListener('load', function () {
+    setTimeout(function () { if (!window.__motionOK) document.documentElement.classList.remove('js'); }, 600);
+  });
+</script>
 </head>
 <body>
 
@@ -783,6 +842,7 @@
       <figcaption class="portrait__badge glass">The Graduate</figcaption>
     </figure>
   </div>
+  <div class="hero__veil" aria-hidden="true"></div>
   <a class="scroll-cue" href="#journey" aria-label="Scroll to read my story">
     My story
     <span class="line"></span>
@@ -799,67 +859,73 @@
 
   <section class="beat p-street">
     <div class="beat__media"><img src="scooter-selfie.jpg" alt="Two friends with a motorbike on a sunny city street" loading="lazy"></div>
+    <div class="beat__veil" aria-hidden="true"></div>
     <div class="beat__text"><div class="beat__panel glass">
       <div class="beat__num reveal"><b>01</b><span class="eyebrow">The first year</span></div>
       <h3 class="reveal d1">Figuring it out</h3>
       <p class="reveal d2">I started out not knowing where anything was: the classrooms, the shortcuts, or honestly, myself. So I said yes to almost everything. New streets, new people, long rides across a city that slowly began to feel like home.</p>
     </div>
-    <figure class="beat__photo glass reveal d1" aria-hidden="true"><img src="scooter-selfie.jpg" alt="" loading="lazy"></figure>
+    <figure class="beat__photo glass" aria-hidden="true"><img src="scooter-selfie.jpg" alt="" loading="lazy"></figure>
     </div>
   </section>
 
   <section class="beat p-trek">
     <div class="beat__media"><img src="2bc8ae66-7778-469d-8e95-c61747786443.jpg" alt="Seven friends in rain ponchos giving thumbs up at a mountain summit" loading="lazy"></div>
+    <div class="beat__veil" aria-hidden="true"></div>
     <div class="beat__text"><div class="beat__panel glass">
       <div class="beat__num reveal"><b>02</b><span class="eyebrow">What I learned</span></div>
       <h3 class="reveal d1">Keep climbing</h3>
       <p class="reveal d2">Not everything worth learning was in a textbook. I learned to keep going when the rain won't stop, to stay curious, to fail, laugh about it, and get back up. And I learned that the summit is always better reached together.</p>
     </div>
-    <figure class="beat__photo glass reveal d1" aria-hidden="true"><img src="2bc8ae66-7778-469d-8e95-c61747786443.jpg" alt="" loading="lazy"></figure>
+    <figure class="beat__photo glass" aria-hidden="true"><img src="2bc8ae66-7778-469d-8e95-c61747786443.jpg" alt="" loading="lazy"></figure>
     </div>
   </section>
 
   <section class="beat p-bbq">
     <div class="beat__media"><img src="4701b47e-adce-4fee-8c33-6a4c6bb76524.jpg" alt="Six friends sharing a barbecue dinner around a low table at home" loading="lazy"></div>
+    <div class="beat__veil" aria-hidden="true"></div>
     <div class="beat__text"><div class="beat__panel glass">
       <div class="beat__num reveal"><b>03</b><span class="eyebrow">The people</span></div>
       <h3 class="reveal d1">A table full of brothers</h3>
       <p class="reveal d2">To my roommates: the grill still smoking past midnight, talking about everything and nothing. You turned four walls into a home.</p>
     </div>
-    <figure class="beat__photo glass reveal d1" aria-hidden="true"><img src="4701b47e-adce-4fee-8c33-6a4c6bb76524.jpg" alt="" loading="lazy"></figure>
+    <figure class="beat__photo glass" aria-hidden="true"><img src="4701b47e-adce-4fee-8c33-6a4c6bb76524.jpg" alt="" loading="lazy"></figure>
     </div>
   </section>
 
   <section class="beat p-boat">
     <div class="beat__media"><img src="2ef3c096-4dfb-4d9d-89c2-c6ef1a019538.jpg" alt="Six friends standing at night in front of a lit-up river cruise boat" loading="lazy"></div>
+    <div class="beat__veil" aria-hidden="true"></div>
     <div class="beat__text"><div class="beat__panel glass">
       <div class="beat__num reveal"><b>04</b><span class="eyebrow">After dark</span></div>
       <h3 class="reveal d1">Nights by the river</h3>
       <p class="reveal d2">The nights out by the river, when the city lights made every worry feel a little smaller. Some of my best lessons came after dark, standing next to all of you.</p>
     </div>
-    <figure class="beat__photo glass reveal d1" aria-hidden="true"><img src="2ef3c096-4dfb-4d9d-89c2-c6ef1a019538.jpg" alt="" loading="lazy"></figure>
+    <figure class="beat__photo glass" aria-hidden="true"><img src="2ef3c096-4dfb-4d9d-89c2-c6ef1a019538.jpg" alt="" loading="lazy"></figure>
     </div>
   </section>
 
   <section class="beat p-bar">
     <div class="beat__media"><img src="3dc7c9f3-c5fe-46cf-be4c-c6a04bf47ade.jpg" alt="The graduate smiling with three mentors at a lively restaurant event" loading="lazy"></div>
+    <div class="beat__veil" aria-hidden="true"></div>
     <div class="beat__text"><div class="beat__panel glass">
       <div class="beat__num reveal"><b>05</b><span class="eyebrow">Along the way</span></div>
       <h3 class="reveal d1">The ones who believed</h3>
       <p class="reveal d2">To the mentors and the wider community who opened doors, gave advice I didn't know I needed, and believed in me before I did.</p>
     </div>
-    <figure class="beat__photo glass reveal d1" aria-hidden="true"><img src="3dc7c9f3-c5fe-46cf-be4c-c6a04bf47ade.jpg" alt="" loading="lazy"></figure>
+    <figure class="beat__photo glass" aria-hidden="true"><img src="3dc7c9f3-c5fe-46cf-be4c-c6a04bf47ade.jpg" alt="" loading="lazy"></figure>
     </div>
   </section>
 
   <section class="beat beat--top p-family">
     <div class="beat__media"><img src="bd927617-4bb9-4e62-af3c-0f087dc51060.jpg" alt="The graduate and a family member in conical hats on a river trip among coconut palms" loading="lazy"></div>
+    <div class="beat__veil" aria-hidden="true"></div>
     <div class="beat__text"><div class="beat__panel glass">
       <div class="beat__num reveal"><b>06</b><span class="eyebrow">Where it all began</span></div>
       <h3 class="reveal d1">Family</h3>
       <p class="reveal d2">And to my family, who were there from the very first day, long before any of this began. Every step of this journey has your footprints in it.</p>
     </div>
-    <figure class="beat__photo glass reveal d1" aria-hidden="true"><img src="bd927617-4bb9-4e62-af3c-0f087dc51060.jpg" alt="" loading="lazy"></figure>
+    <figure class="beat__photo glass" aria-hidden="true"><img src="bd927617-4bb9-4e62-af3c-0f087dc51060.jpg" alt="" loading="lazy"></figure>
     </div>
   </section>
 
@@ -880,28 +946,28 @@
     </div>
     <canvas id="confetti" aria-hidden="true"></canvas>
 
-    <div class="card glass reveal">
-      <div class="card__crest"><img src="logo-khtn-gold.png" alt="University of Science, VNU-HCM emblem: Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM" width="493" height="405" loading="lazy"></div>
-      <p class="eyebrow">You're invited</p>
-      <h2>Come celebrate</h2>
-      <p class="card__lead">the graduation of</p>
-      <p class="card__name" data-field="name">Nguyễn Thành Tài</p>
-      <p class="card__uni">Class of 2026 · <span data-field="university">University of Science, VNU-HCM</span></p>
-      <p class="card__uni card__uni--vi" data-field="universityVi">Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM</p>
+    <div class="card glass">
+      <div class="card__crest reveal"><img src="logo-khtn-gold.png" alt="University of Science, VNU-HCM emblem: Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM" width="493" height="405" loading="lazy"></div>
+      <p class="eyebrow reveal d1">You're invited</p>
+      <h2 class="reveal d1">Come celebrate</h2>
+      <p class="card__lead reveal d2">the graduation of</p>
+      <p class="card__name reveal d2" data-field="name">Nguyễn Thành Tài</p>
+      <p class="card__uni reveal d3">Class of 2026 · <span data-field="university">University of Science, VNU-HCM</span></p>
+      <p class="card__uni card__uni--vi reveal d3" data-field="universityVi">Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM</p>
 
-      <div class="date glass-lite" aria-label="Sunday, 29 November 2026">
+      <div class="date glass-lite reveal" aria-label="Sunday, 29 November 2026">
         <span class="date__side">Sunday</span>
         <span class="date__day">29</span>
         <span class="date__side">Nov 2026</span>
       </div>
 
-      <dl class="details">
+      <dl class="details reveal d1">
         <div class="detail glass-lite"><dt>Time</dt><dd data-field="time">10:00 – 11:00 AM (Vietnam time)</dd></div>
         <div class="detail glass-lite"><dt>Venue</dt><dd><span data-field="venue">227 Nguyễn Văn Cừ, Phường Chợ Quán, TP.HCM</span><br>
           <a class="map-link glass-lite" id="map-link" href="https://www.google.com/maps/search/?api=1&amp;query=227%20Nguy%E1%BB%85n%20V%C4%83n%20C%E1%BB%AB%2C%20Ph%C6%B0%E1%BB%9Dng%20Ch%E1%BB%A3%20Qu%C3%A1n%2C%20TP.HCM" target="_blank" rel="noopener">View on map →</a></dd></div>
       </dl>
 
-      <div class="countdown" id="countdown" aria-live="off">
+      <div class="countdown reveal" id="countdown" aria-live="off">
         <div class="glass-lite"><b data-cd="d">--</b><small>Days</small></div>
         <div class="glass-lite"><b data-cd="h">--</b><small>Hours</small></div>
         <div class="glass-lite"><b data-cd="m">--</b><small>Mins</small></div>
@@ -909,15 +975,15 @@
       </div>
       <p class="countdown-note" id="countdown-note"></p>
 
-      <div class="actions">
+      <div class="actions reveal d1">
         <button class="btn" id="add-cal" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
           Add to calendar
         </button>
       </div>
 
-      <p class="closing">Your presence would mean the world to me.</p>
-      <p class="signature">With love and gratitude,<br><span data-field="name">Nguyễn Thành Tài</span></p>
+      <p class="closing reveal">Your presence would mean the world to me.</p>
+      <p class="signature reveal d1">With love and gratitude,<br><span data-field="name">Nguyễn Thành Tài</span></p>
     </div>
   </section>
 </main>
@@ -966,6 +1032,39 @@ const INVITE = {
   window.addEventListener('load', () => document.body.classList.add('loaded'));
   requestAnimationFrame(() => setTimeout(() => document.body.classList.add('loaded'), 50));
 
+  /* ---- Split headings into words for a staggered reveal ---- */
+  const splitWords = (el, base) => {
+    let i = 0;
+    const walk = node => {
+      Array.from(node.childNodes).forEach(n => {
+        if (n.nodeType === 3) {
+          if (!n.textContent.trim()) return;
+          const frag = document.createDocumentFragment();
+          n.textContent.split(/(\s+)/).forEach(t => {
+            if (!t) return;
+            if (/^\s+$/.test(t)) { frag.appendChild(document.createTextNode(t)); return; }
+            const w = document.createElement('span');
+            w.className = 'w';
+            w.textContent = t;
+            w.style.transitionDelay = (base + i++ * 0.065).toFixed(3) + 's';
+            frag.appendChild(w);
+          });
+          node.replaceChild(frag, n);
+        } else if (n.nodeType === 1 && n.tagName !== 'BR') {
+          walk(n);
+        }
+      });
+    };
+    walk(el);
+    el.classList.add('split');
+  };
+  if (!reduceMotion) {
+    document.querySelectorAll('.hero h1, .journey-intro h2, .beat h3, .outro blockquote, .card h2').forEach(el => {
+      const base = el.classList.contains('d3') ? .36 : el.classList.contains('d2') ? .24 : el.classList.contains('d1') ? .12 : 0;
+      splitWords(el, base);
+    });
+  }
+
   /* ---- Reveal on scroll ---- */
   const revealEls = document.querySelectorAll('.reveal, .beat');
   if ('IntersectionObserver' in window && !reduceMotion) {
@@ -984,59 +1083,126 @@ const INVITE = {
       revealEls.forEach(el => {
         if (el.classList.contains('in')) return;
         const r = el.getBoundingClientRect();
-        if (r.top < vh * 0.92 && r.bottom > 0) el.classList.add('in');
+        // in view, or already scrolled past (e.g. a fast nav jump skipped over it)
+        if (r.top < vh * 0.92) el.classList.add('in');
       });
     };
     const onSweep = () => { if (!pending) { pending = true; requestAnimationFrame(sweep); } };
     window.addEventListener('scroll', onSweep, { passive: true });
     window.addEventListener('resize', onSweep);
     window.addEventListener('load', onSweep);
+    window.addEventListener('hashchange', onSweep);
+    // Safety sweeps for in-app browsers that settle late or never fire observers
+    setTimeout(sweep, 1200);
+    window.addEventListener('load', () => setTimeout(sweep, 900));
   } else {
     revealEls.forEach(el => el.classList.add('in'));
   }
+  window.__motionOK = true;
 
-  /* ---- Parallax on journey photos (transform-based, works on iOS) ---- */
-  const layers = Array.from(document.querySelectorAll('.beat__media'));
-  if (!reduceMotion && layers.length) {
-    let ticking = false;
-    const update = () => {
-      const vh = window.innerHeight;
-      layers.forEach(layer => {
-        const r = layer.parentElement.getBoundingClientRect();
-        if (r.bottom < -100 || r.top > vh + 100) return;
-        const progress = (r.top + r.height / 2 - vh / 2) / (vh + r.height); // ~ -0.5..0.5
-        layer.style.transform = 'translate3d(0,' + (progress * -12).toFixed(2) + '%,0)';
-      });
-      ticking = false;
-    };
-    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    update();
-  }
-
-  /* ---- Floating glass nav: show after the hero, track section + progress ---- */
+  /* =====================================================================
+     SCROLL ENGINE: one passive scroll listener, one rAF per frame.
+     Positions are measured only on load/resize (never per frame), so each
+     frame is pure math + transform/opacity writes: no layout thrash.
+     Every value is a pure function of scroll position, so loading mid-page
+     or jumping via the nav lands in the correct, settled state.
+     ===================================================================== */
+  const motion = !reduceMotion;
+  if (motion) document.documentElement.classList.add('motion');
+  const clamp = v => v < 0 ? 0 : v > 1 ? 1 : v;
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  const hero = document.querySelector('.hero');
+  const heroInner = hero.querySelector('.hero__inner');
+  const heroVeil = hero.querySelector('.hero__veil');
+  const heroLights = hero.querySelector('.hero__lights');
+  const beats = Array.from(document.querySelectorAll('.beat')).map(el => ({
+    el, media: el.querySelector('.beat__media'), veil: el.querySelector('.beat__veil'),
+    panel: el.querySelector('.beat__panel'), photo: el.querySelector('.beat__photo')
+  }));
+  const card = document.querySelector('.card');
+  const collage = document.querySelector('.invite__collage');
   const nav = document.getElementById('navpill');
   const bar = document.getElementById('progress');
-  if (nav) {
-    const links = Array.from(nav.querySelectorAll('a[data-sec]'));
-    const secs = links.map(a => document.getElementById(a.dataset.sec));
-    let navPending = false;
-    const navUpdate = () => {
-      navPending = false;
-      const y = window.scrollY, vh = window.innerHeight;
-      const max = Math.max(1, document.documentElement.scrollHeight - vh);
-      nav.classList.toggle('show', y > vh * 0.6);
-      bar.style.transform = 'scaleX(' + Math.min(1, y / max).toFixed(4) + ')';
-      let current = 0;
-      secs.forEach((s, i) => { if (s && s.getBoundingClientRect().top < vh * 0.45) current = i; });
-      links.forEach((a, i) => a.classList.toggle('active', i === current));
+  const links = nav ? Array.from(nav.querySelectorAll('a[data-sec]')) : [];
+  let vh = window.innerHeight, M = null, confettiFired = false, burst = null;
+
+  function measure() {
+    const y = window.scrollY;
+    vh = window.innerHeight;
+    if (motion) [heroInner, card].concat(...beats.map(b => [b.panel, b.photo])).forEach(e => { if (e) e.style.transform = ''; });
+    const R = e => { if (!e) return null; const r = e.getBoundingClientRect(); return { top: r.top + y, h: r.height }; };
+    M = {
+      hero: R(hero),
+      beats: beats.map(b => ({ sec: R(b.el), panel: R(b.panel), photo: R(b.photo) })),
+      card: R(card),
+      secs: links.map(a => R(document.getElementById(a.dataset.sec))),
+      max: Math.max(1, document.documentElement.scrollHeight - vh)
     };
-    const onNav = () => { if (!navPending) { navPending = true; requestAnimationFrame(navUpdate); } };
-    window.addEventListener('scroll', onNav, { passive: true });
-    window.addEventListener('resize', onNav);
-    navUpdate();
+    frame(true);
   }
+
+  function frame(all) {
+    if (!M) return;
+    const y = window.scrollY;
+
+    /* nav pill: visibility, progress line, current section */
+    if (nav) {
+      nav.classList.toggle('show', y > vh * 0.6);
+      bar.style.transform = 'scaleX(' + Math.min(1, y / M.max).toFixed(4) + ')';
+      let cur = 0;
+      M.secs.forEach((s, i) => { if (s && s.top - y < vh * 0.45) cur = i; });
+      links.forEach((a, i) => a.classList.toggle('active', i === cur));
+    }
+    if (!motion) return;
+
+    /* hero: recedes (drifts slower than the page, shrinks a touch) and dims as it leaves */
+    const hb = M.hero.top + M.hero.h - y;
+    if (all || hb > -80) {
+      const hp = clamp(1 - hb / vh);
+      heroInner.style.transform = 'translate3d(0,' + (hp * vh * 0.28).toFixed(1) + 'px,0) scale(' + (1 - hp * 0.06).toFixed(4) + ')';
+      heroLights.style.transform = 'translate3d(0,' + (hp * vh * 0.42).toFixed(1) + 'px,0)';
+      heroVeil.style.opacity = (Math.pow(hp, 1.3) * 0.85).toFixed(3);
+    }
+
+    /* beats: photo settles from a slight zoom and "lights up"; glass panel rises; framed photo tilts in */
+    M.beats.forEach((m, i) => {
+      const b = beats[i], top = m.sec.top - y, h = m.sec.h;
+      if (!all && (top > vh * 1.6 || top + h < -vh * 0.6)) return;
+      const enter = ease(clamp((vh - top) / (vh * 0.7)));
+      const exit = clamp(1 - (top + h) / (vh * 0.7));
+      const par = (top + h / 2 - vh / 2) / (vh + h);
+      b.media.style.transform = 'translate3d(0,' + (par * -12).toFixed(2) + '%,0) scale(' + (1.1 - 0.1 * enter).toFixed(4) + ')';
+      b.veil.style.opacity = Math.min(0.9, (1 - enter) * 0.8 + exit * 0.55).toFixed(3);
+      const pe = ease(clamp((vh - (m.panel.top - y)) / (vh * 0.5)));
+      b.panel.style.transform = 'translate3d(0,' + ((1 - pe) * 64 - exit * 36).toFixed(1) + 'px,0) scale(' + (0.96 + 0.04 * pe).toFixed(4) + ')';
+      if (m.photo && m.photo.h) {
+        const te = ease(clamp((vh - (m.photo.top - y)) / (vh * 0.6))), k = 1 - te;
+        b.photo.style.transform = 'perspective(1400px) translate3d(0,' + (k * 70 - exit * 30).toFixed(1) + 'px,0) rotateX(' +
+          (k * 10).toFixed(2) + 'deg) rotateY(' + (k * -8).toFixed(2) + 'deg) scale(' + (0.92 + 0.08 * te).toFixed(4) + ')';
+        b.photo.style.opacity = Math.min(1, te * 1.6).toFixed(3);
+      }
+    });
+
+    /* invitation: the glass card rises out of the collage, which settles behind it; confetti on arrival */
+    const ct = M.card.top - y;
+    if (all || ct < vh * 1.6) {
+      const ce = ease(clamp((vh - ct) / (vh * 0.6)));
+      card.style.transform = 'translate3d(0,' + ((1 - ce) * 90).toFixed(1) + 'px,0) scale(' + (0.94 + 0.06 * ce).toFixed(4) + ')';
+      collage.style.transform = 'scale(' + (1.06 + (1 - ce) * 0.12).toFixed(4) + ')';
+      if (ce > 0.9 && !confettiFired) { confettiFired = true; if (burst) burst(); }
+      if (ce < 0.15) confettiFired = false;
+    }
+  }
+
+  let framePending = false;
+  const onScroll = () => { if (!framePending) { framePending = true; requestAnimationFrame(() => { framePending = false; frame(false); }); } };
+  let measurePending = false;
+  const onLayout = () => { if (!measurePending) { measurePending = true; requestAnimationFrame(() => { measurePending = false; measure(); }); } };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onLayout);
+  window.addEventListener('load', onLayout);
+  if ('ResizeObserver' in window) new ResizeObserver(onLayout).observe(document.body);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(onLayout);
 
   /* ---- Countdown ---- */
   const timeOk = t => /^\d{1,2}:\d{2}$/.test(t || '');
@@ -1125,7 +1291,7 @@ const INVITE = {
   /* ---- Gold confetti when the invitation comes into view ---- */
   const canvas = document.getElementById('confetti');
   const section = document.getElementById('invite');
-  if (!reduceMotion && canvas && canvas.getContext && 'IntersectionObserver' in window) {
+  if (!reduceMotion && canvas && canvas.getContext) {
     const ctx = canvas.getContext('2d');
     const colors = ['#d4b26a', '#e9d6a5', '#a9843c', '#f6efe0'];
     let parts = [], running = false, w = 0, h = 0, dpr = 1, startT = 0;
@@ -1179,7 +1345,7 @@ const INVITE = {
       if (elapsed < 8500 && parts.length) requestAnimationFrame(draw);
       else { ctx.clearRect(0, 0, w, h); running = false; }
     };
-    const burst = () => {
+    burst = () => {                 // fired by the scroll engine when the invitation card settles
       if (running) return;
       running = true;
       size();
@@ -1188,12 +1354,10 @@ const INVITE = {
       startT = performance.now();
       requestAnimationFrame(draw);
     };
-    const cio = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) burst(); });
-    }, { threshold: 0.35 });
-    cio.observe(section);
     window.addEventListener('resize', () => { if (running) size(); });
   }
+
+  measure();
 })();
 </script>
 </body>
