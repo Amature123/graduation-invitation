@@ -1,0 +1,1200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>You're Invited · Class of 2026</title>
+<meta name="description" content="Four years. One journey. Join me to celebrate my graduation on Sunday, 29 November 2026.">
+<meta name="theme-color" content="#0a1430">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!--
+  ============================================================
+  EDIT HERE  ->  the INVITE object in the script block at the bottom
+  of this file holds the name, university, time, venue and date.
+  Change a value there and every matching spot on the page, the
+  countdown, the map link and the calendar file all update.
+  ============================================================
+-->
+
+<style>
+  :root {
+    --navy-950: #060d22;
+    --navy-900: #0a1430;
+    --navy-800: #111f45;
+    --navy-700: #1b2c5c;
+    --gold: #d4b26a;
+    --gold-soft: #e9d6a5;
+    --gold-deep: #a9843c;
+    --cream: #f6efe0;
+    --ink-soft: rgba(246, 239, 224, .78);
+    --ink-faint: rgba(246, 239, 224, .55);
+    --serif: "Cormorant Garamond", "Times New Roman", serif;
+    --sans: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --gutter: max(16px, env(safe-area-inset-left));
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--navy-900);
+    color: var(--cream);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.65;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { display: block; max-width: 100%; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 500; margin: 0; line-height: 1.08; }
+  p { margin: 0; }
+  h1, h2, h3, blockquote, .closing, .hero__lede, .card__uni { text-wrap: balance; }
+
+  .eyebrow {
+    font-family: var(--sans);
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .32em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .rule {
+    display: inline-flex; align-items: center; gap: .75rem;
+  }
+  .rule::before, .rule::after {
+    content: ""; width: 2.2rem; height: 1px; background: currentColor; opacity: .6;
+  }
+
+  /* ============ LIQUID GLASS SYSTEM ============
+     .glass       = real frosted glass (backdrop-filter). Used sparingly: one per beat,
+                    the invite card, the hero mat + plates, the nav pill.
+     .glass-lite  = glass look without backdrop-filter, for tiles that sit *inside* a
+                    .glass panel (nested backdrop filters can't see the photo anyway). */
+  .glass {
+    position: relative;
+    isolation: isolate;
+    background:
+      linear-gradient(150deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.05) 38%, rgba(255,255,255,.02) 62%, rgba(255,255,255,.08) 100%),
+      var(--glass-tint, rgba(10,20,48,.38));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 22px)) saturate(175%) brightness(1.04);
+    backdrop-filter: blur(var(--glass-blur, 22px)) saturate(175%) brightness(1.04);
+    border-radius: var(--glass-radius, 28px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.55),         /* specular top edge */
+      inset 0 -1px 0 rgba(255,255,255,.08),
+      inset 0 0 30px rgba(255,255,255,.06),        /* soft inner glow */
+      0 1px 2px rgba(0,0,0,.25),
+      0 30px 60px -24px rgba(0,0,0,.65);           /* floating depth */
+  }
+  .glass::before {                                  /* curved light sheen, like light bending in the glass */
+    content: "";
+    position: absolute; inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      radial-gradient(120% 70% at 18% -10%, rgba(255,255,255,.22), rgba(255,255,255,0) 55%),
+      radial-gradient(90% 60% at 100% 115%, rgba(212,178,106,.16), rgba(212,178,106,0) 60%);
+  }
+  .glass::after {                                   /* refractive rim: white at the top, gold at the bottom */
+    content: "";
+    position: absolute; inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    background: linear-gradient(165deg, rgba(255,255,255,.7), rgba(255,255,255,.12) 30%, rgba(255,255,255,.04) 60%, rgba(212,178,106,.55));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  }
+  .glass-lite {
+    background: linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.035));
+    border: 1px solid rgba(255,255,255,.13);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.38),
+      inset 0 0 18px rgba(255,255,255,.04),
+      0 10px 24px -14px rgba(0,0,0,.6);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass { background: linear-gradient(150deg, rgba(40,58,110,.95), rgba(14,26,60,.96)); }
+  }
+
+  /* ---------- Reveal on scroll ---------- */
+  .js .reveal { opacity: 0; transform: translateY(26px); transition: opacity 1s ease, transform 1s cubic-bezier(.2,.7,.2,1); }
+  .js .reveal.in { opacity: 1; transform: none; }
+  .js .reveal.d1 { transition-delay: .12s; }
+  .js .reveal.d2 { transition-delay: .24s; }
+  .js .reveal.d3 { transition-delay: .36s; }
+
+  /* ============ HERO ============ */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: grid;
+    align-items: center;
+    padding: 56px var(--gutter) 96px;
+    background:
+      radial-gradient(1200px 700px at 75% 35%, rgba(212,178,106,.13), transparent 60%),
+      radial-gradient(900px 600px at 10% 90%, rgba(27,44,92,.9), transparent 70%),
+      linear-gradient(180deg, var(--navy-950), var(--navy-900));
+    overflow: hidden;
+    isolation: isolate;
+  }
+  /* Soft colour light behind the hero so the glass has something to bend */
+  .hero__lights { position: absolute; inset: 0; z-index: -2; pointer-events: none; overflow: hidden; }
+  .hero__lights span {
+    position: absolute;
+    border-radius: 50%;
+    animation: drift 22s ease-in-out infinite alternate;
+  }
+  .hero__lights .l1 { width: 70vmax; height: 70vmax; right: -22vmax; top: -18vmax;
+    background: radial-gradient(circle, rgba(212,178,106,.34), rgba(212,178,106,0) 62%); }
+  .hero__lights .l2 { width: 80vmax; height: 80vmax; left: -34vmax; bottom: -40vmax;
+    background: radial-gradient(circle, rgba(58,98,214,.55), rgba(58,98,214,0) 62%); animation-duration: 28s; }
+  .hero__lights .l3 { width: 46vmax; height: 46vmax; right: 2vmax; bottom: -16vmax;
+    background: radial-gradient(circle, rgba(120,86,200,.32), rgba(120,86,200,0) 64%); animation-duration: 19s; }
+  @keyframes drift {
+    from { transform: translate3d(0,0,0) scale(1); }
+    to   { transform: translate3d(-4vmax, 3vmax, 0) scale(1.08); }
+  }
+  .hero__year {
+    position: absolute;
+    right: -2vw; bottom: -6vw;
+    font-family: var(--serif);
+    font-size: clamp(10rem, 34vw, 30rem);
+    line-height: .8;
+    font-weight: 600;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(212,178,106,.16);
+    z-index: -1;
+    user-select: none;
+    pointer-events: none;
+  }
+  .hero__inner {
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    gap: 40px;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .hero__text { max-width: 30rem; }
+  .hero h1 {
+    font-size: clamp(2.6rem, 9vw, 5.2rem);
+    margin: 18px 0 18px;
+    letter-spacing: -.01em;
+  }
+  .hero h1 em { font-style: italic; color: var(--gold-soft); }
+  .hero__lede {
+    font-family: var(--serif);
+    font-size: clamp(1.25rem, 3.6vw, 1.6rem);
+    font-style: italic;
+    color: var(--ink-soft);
+  }
+  .hero__name {
+    margin-top: 22px;
+    font-size: .95rem;
+    letter-spacing: .08em;
+    color: var(--ink-faint);
+  }
+
+  /* Portrait: arched frame */
+  .portrait {
+    position: relative;
+    width: min(78vw, 400px);
+    aspect-ratio: 4 / 5;
+  }
+  .portrait__frame {
+    position: absolute; inset: 0;
+    border-radius: 999px 999px 14px 14px;
+    overflow: hidden;
+    background: #e6e9ee;
+    box-shadow: 0 40px 80px -30px rgba(0,0,0,.7), 0 0 0 1px rgba(212,178,106,.5);
+  }
+  .portrait__frame img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: 50% 30%;
+    transform: scale(1.04);
+    transition: transform 2.4s cubic-bezier(.2,.7,.2,1);
+  }
+  .loaded .portrait__frame img { transform: scale(1); }
+  .portrait__mat {              /* thick liquid-glass mat around the arch */
+    position: absolute; inset: -16px;
+    --glass-radius: 999px 999px 30px 30px;
+    --glass-tint: rgba(255,255,255,.04);
+    --glass-blur: 18px;
+  }
+  .portrait__frame { z-index: 1; }
+  .portrait__badge {
+    position: absolute;
+    z-index: 2;
+    left: 50%; bottom: -24px;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    --glass-radius: 999px;
+    --glass-tint: rgba(10,20,48,.45);
+    --glass-blur: 14px;
+    color: var(--gold-soft);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.15rem;
+    padding: 7px 24px;
+  }
+
+  .scroll-cue {
+    position: absolute;
+    left: 50%; bottom: 20px;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    color: var(--ink-faint);
+    text-decoration: none;
+    font-size: .68rem;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+  }
+  .scroll-cue span.line {
+    width: 1px; height: 38px;
+    background: linear-gradient(var(--gold), transparent);
+    animation: drip 2.2s ease-in-out infinite;
+    transform-origin: top;
+  }
+  @keyframes drip {
+    0% { transform: scaleY(0); opacity: 1; }
+    60% { transform: scaleY(1); opacity: 1; }
+    100% { transform: scaleY(1); opacity: 0; }
+  }
+
+  /* School emblem: gold cut-out mark (no white badge) in a glass pill with the full school name */
+  .emblem {
+    display: inline-flex; align-items: center; gap: 14px;
+    text-align: left;
+    margin-bottom: 28px;
+    padding: 10px 22px 10px 14px;
+    --glass-radius: 999px;
+    --glass-tint: rgba(10,20,48,.3);
+    --glass-blur: 16px;
+    max-width: 100%;
+  }
+  .emblem__mark {
+    flex: none;
+    height: 46px; width: auto;
+    filter: drop-shadow(0 0 10px rgba(233,214,165,.35)) drop-shadow(0 2px 3px rgba(0,0,0,.4));
+  }
+  .emblem__divider { flex: none; width: 1px; align-self: stretch; margin: 4px 0; background: linear-gradient(transparent, rgba(233,214,165,.55), transparent); }
+  .emblem__text { font-size: .82rem; line-height: 1.45; color: var(--cream); font-weight: 500; }
+  .emblem__text small { display: block; font-size: .74rem; font-weight: 400; color: var(--ink-soft); text-wrap: balance; }
+  @media (max-width: 420px) { .emblem { padding-right: 16px; gap: 11px; } .emblem__text small { font-size: .7rem; } }
+
+  .hero__name {
+    display: inline-block;
+    margin-top: 26px !important;
+    padding: 10px 28px 12px;
+    font-family: var(--serif);
+    font-size: clamp(1.5rem, 5vw, 1.9rem) !important;
+    font-weight: 500;
+    letter-spacing: .01em !important;
+    color: var(--cream) !important;
+    --glass-radius: 999px;
+    --glass-tint: rgba(255,255,255,.03);
+    --glass-blur: 16px;
+  }
+
+  @media (max-width: 899px) {
+    .hero { padding-bottom: 36px; align-items: start; }
+    .scroll-cue { position: static; transform: none; margin: 44px auto 0; }
+  }
+
+  @media (min-width: 900px) {
+    .hero__inner {
+      grid-template-columns: 1.05fr .95fr;
+      text-align: left;
+      justify-items: start;
+      gap: 64px;
+    }
+    .hero__inner .portrait { justify-self: center; }
+    .hero__text .rule::before { display: none; }
+  }
+
+  /* ============ JOURNEY ============ */
+  .journey-intro {
+    padding: 96px var(--gutter) 72px;
+    text-align: center;
+    background: var(--navy-900);
+  }
+  .journey-intro h2 { font-size: clamp(2.1rem, 7vw, 3.6rem); margin-top: 14px; }
+  .journey-intro h2 em { color: var(--gold-soft); }
+  .journey-intro p {
+    max-width: 34rem; margin: 18px auto 0;
+    color: var(--ink-soft);
+  }
+
+  .beat {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--navy-950);
+  }
+  .beat__media {               /* parallax layer (JS moves this) */
+    position: absolute;
+    left: 0; right: 0;
+    top: -8%; height: 116%;
+    z-index: -2;
+    will-change: transform;
+  }
+  .beat__media img {           /* Ken Burns layer */
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transform: scale(1.04);
+    transition: transform 9s ease-out;
+  }
+  .beat.in .beat__media img { transform: scale(1.0); }
+  .beat::after {
+    content: "";
+    position: absolute; inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(to top, rgba(6,13,34,.7) 0%, rgba(6,13,34,.35) 30%, rgba(6,13,34,.06) 58%, rgba(6,13,34,.06) 80%, rgba(6,13,34,.45) 100%);
+  }
+  .beat--top { align-items: flex-start; }
+  .beat--top::after {
+    background:
+      linear-gradient(to bottom, rgba(6,13,34,.7) 0%, rgba(6,13,34,.35) 28%, rgba(6,13,34,.06) 55%, rgba(6,13,34,.06) 78%, rgba(6,13,34,.5) 100%);
+  }
+
+  .beat__text {
+    position: relative;
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 64px var(--gutter) 64px;
+  }
+  .beat__panel {
+    max-width: 31rem;
+    padding: 24px 22px 26px;
+    --glass-tint: rgba(8,16,40,.42);
+    --glass-blur: 20px;
+  }
+  @media (max-width: 899px) {
+    .beat__text { padding-bottom: 92px; }          /* room for the floating nav pill */
+    .beat--top .beat__text { padding-top: 28px; }
+  }
+  .beat__num {
+    display: flex; align-items: baseline; gap: 14px;
+    margin-bottom: 14px;
+  }
+  .beat__num b {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-style: italic;
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--gold);
+  }
+  .beat h3 {
+    font-size: clamp(2rem, 6.4vw, 3.2rem);
+    margin-bottom: 16px;
+    text-shadow: 0 2px 24px rgba(0,0,0,.45);
+  }
+  .beat p {
+    font-size: clamp(1.02rem, 2.6vw, 1.12rem);
+    color: var(--ink-soft);
+    text-shadow: 0 1px 12px rgba(0,0,0,.6);
+  }
+  .beat p + p { margin-top: 12px; }
+
+  @media (min-width: 900px) {
+    .beat::after {
+      background:
+        linear-gradient(90deg, rgba(6,13,34,.95) 0%, rgba(6,13,34,.86) 30%, rgba(6,13,34,.45) 50%, rgba(6,13,34,0) 70%),
+        linear-gradient(to top, rgba(6,13,34,.7) 0%, rgba(6,13,34,0) 40%);
+    }
+    .beat--top::after {
+      background:
+        linear-gradient(90deg, rgba(6,13,34,.95) 0%, rgba(6,13,34,.86) 30%, rgba(6,13,34,.45) 50%, rgba(6,13,34,0) 70%),
+        linear-gradient(to bottom, rgba(6,13,34,.6) 0%, rgba(6,13,34,0) 40%);
+    }
+    .beat, .beat--top { align-items: center; }
+  }
+
+  /* Framed, uncropped photo: hidden on phones (full-bleed photo already fits a tall screen) */
+  .beat__photo { display: none; margin: 0; }
+
+  @media (min-width: 900px) {
+    /* Backdrop becomes a soft blurred wash; the real photo is shown whole and sharp in a frame */
+    .beat__media img,
+    .beat.in .beat__media img {
+      filter: blur(28px) saturate(1.15) brightness(.6);
+      transform: scale(1.2);
+      transition: none;
+    }
+    .beat::after,
+    .beat--top::after {
+      background:
+        linear-gradient(90deg, rgba(6,13,34,.6) 0%, rgba(6,13,34,.35) 45%, rgba(6,13,34,.25) 100%);
+    }
+    .beat__panel { padding: 38px 40px 40px; --glass-tint: rgba(8,16,40,.34); }
+    .beat__text {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: clamp(40px, 5vw, 80px);
+      padding-top: 72px; padding-bottom: 72px;
+    }
+    .beat__photo {                 /* liquid-glass frame instead of the gold border */
+      display: block;
+      padding: 14px;
+      --glass-radius: 30px;
+      --glass-tint: rgba(255,255,255,.05);
+      --glass-blur: 16px;
+    }
+    .beat__photo img {
+      display: block;
+      width: auto; height: auto;
+      max-height: min(76vh, 740px);
+      max-width: min(48vw, 640px);
+      border-radius: 18px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 12px 30px -12px rgba(0,0,0,.6);
+    }
+  }
+
+  /* Per-photo focal points (keeps faces in frame) */
+  .p-street img { object-position: 62% 30%; }
+  .p-trek   img { object-position: 55% 45%; }
+  .p-bbq    img { object-position: 55% 40%; }
+  .p-boat   img { object-position: 46% 58%; }
+  .p-bar    img { object-position: 48% 42%; }
+  .p-family img { object-position: 60% 55%; }
+
+  .outro {
+    padding: 110px var(--gutter);
+    text-align: center;
+    background:
+      radial-gradient(700px 400px at 50% 100%, rgba(212,178,106,.12), transparent 70%),
+      var(--navy-900);
+  }
+  .outro blockquote {
+    margin: 0 auto;
+    max-width: 36rem;
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 5.4vw, 2.5rem);
+    font-style: italic;
+    line-height: 1.3;
+  }
+  .outro blockquote span { color: var(--gold-soft); }
+  .outro p { margin-top: 20px; color: var(--ink-soft); }
+
+  /* ============ INVITATION ============ */
+  .invite {
+    position: relative;
+    padding: 96px var(--gutter) 110px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .invite__collage {
+    position: absolute; inset: -40px;
+    z-index: -3;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    filter: blur(14px) saturate(.9);
+    transform: scale(1.06);
+  }
+  .invite__collage img { width: 100%; height: 100%; object-fit: cover; }
+  .invite::before {
+    content: ""; position: absolute; inset: 0; z-index: -2;
+    background:
+      radial-gradient(800px 600px at 50% 40%, rgba(10,20,48,.38), rgba(6,13,34,.72) 85%);
+  }
+  .invite__collage { filter: blur(10px) saturate(1.15); }
+  #confetti {
+    position: absolute; inset: 0; z-index: -1;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  .card {
+    position: relative;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 56px 24px 48px;
+    text-align: center;
+    --glass-radius: 36px;
+    --glass-tint: rgba(10,20,48,.5);
+    --glass-blur: 26px;
+  }
+  .card__crest {
+    position: relative;
+    width: 150px; margin: 0 auto 26px;
+  }
+  .card__crest::before {          /* warm halo behind the gold mark */
+    content: ""; position: absolute; inset: -18% -14%;
+    background: radial-gradient(closest-side, rgba(233,214,165,.22), rgba(233,214,165,0));
+    z-index: -1;
+  }
+  .card__crest img {
+    width: 100%; height: auto;
+    filter: drop-shadow(0 0 14px rgba(233,214,165,.28)) drop-shadow(0 3px 4px rgba(0,0,0,.45));
+  }
+  .card__uni--vi { font-size: .85rem; margin-top: 2px; }
+  .map-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 10px;
+    padding: 7px 16px;
+    border-radius: 999px;
+    color: var(--gold-soft);
+    font-size: .8rem; font-weight: 600; letter-spacing: .06em;
+    text-decoration: none;
+    transition: background .2s ease, color .2s ease;
+  }
+  .map-link:hover { color: var(--cream); background: rgba(255,255,255,.16); }
+  .map-link:focus-visible { outline: 2px solid var(--cream); outline-offset: 3px; }
+  .card h2 {
+    font-size: clamp(2.6rem, 10vw, 4.2rem);
+    font-style: italic;
+    color: var(--gold-soft);
+    margin: 10px 0 18px;
+  }
+  .card__lead { color: var(--ink-soft); max-width: 26rem; margin: 0 auto; }
+  .card__name {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 7.5vw, 3rem);
+    font-weight: 600;
+    margin: 14px 0 4px;
+    overflow-wrap: anywhere;
+  }
+  .card__uni { color: var(--ink-faint); font-size: .95rem; letter-spacing: .04em; }
+
+  .date {                          /* one glass capsule: SUNDAY | 29 | NOV 2026 */
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 10px;
+    margin: 34px auto 18px;
+    max-width: 26rem;
+    padding: 10px 18px;
+    border-radius: 999px;
+  }
+  .date__side {
+    font-size: .74rem; font-weight: 600;
+    letter-spacing: .24em; text-transform: uppercase;
+  }
+  .date__day {
+    font-family: var(--serif);
+    font-size: 4.2rem;
+    line-height: .95;
+    color: var(--gold-soft);
+    font-weight: 500;
+    padding: 0 18px;
+    border-left: 1px solid rgba(255,255,255,.16);
+    border-right: 1px solid rgba(255,255,255,.16);
+    text-shadow: 0 0 22px rgba(233,214,165,.35);
+  }
+  .details {
+    display: grid; gap: 10px;
+    margin: 0 auto;
+    max-width: 26rem;
+  }
+  .detail { display: grid; gap: 2px; padding: 14px 18px 16px; border-radius: 22px; }
+  .detail dt {
+    font-size: .68rem; font-weight: 600;
+    letter-spacing: .3em; text-transform: uppercase; color: var(--gold);
+  }
+  .detail dd { margin: 0; font-size: 1.05rem; overflow-wrap: anywhere; }
+
+  .countdown {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    max-width: 24rem;
+    margin: 36px auto 10px;
+  }
+  .countdown div {
+    padding: 14px 4px 11px;
+    border-radius: 20px;
+  }
+  .countdown b {
+    display: block;
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 7vw, 2.4rem);
+    font-weight: 500;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .countdown small {
+    display: block; margin-top: 6px;
+    font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-faint);
+  }
+  .countdown-note { font-size: .85rem; color: var(--ink-faint); min-height: 1.4em; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 30px; }
+  .btn {
+    appearance: none;
+    display: inline-flex; align-items: center; gap: 10px;
+    font: 600 .82rem/1 var(--sans);
+    letter-spacing: .16em; text-transform: uppercase;
+    padding: 17px 28px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,240,200,.7);
+    /* liquid gold: translucent gold body, bright specular cap, darker lip at the bottom */
+    background:
+      radial-gradient(120% 90% at 30% -20%, rgba(255,255,255,.75), rgba(255,255,255,0) 50%),
+      linear-gradient(180deg, rgba(245,226,176,.96), rgba(212,178,106,.92) 55%, rgba(184,146,70,.95));
+    color: var(--navy-950);
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform .2s ease, box-shadow .2s ease;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.85),
+      inset 0 -2px 6px rgba(120,86,30,.35),
+      0 0 0 4px rgba(233,214,165,.12),
+      0 14px 34px -12px rgba(212,178,106,.75);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.85), inset 0 -2px 6px rgba(120,86,30,.35), 0 0 0 6px rgba(233,214,165,.16), 0 18px 40px -12px rgba(212,178,106,.9); }
+  .btn:focus-visible { outline: 2px solid var(--cream); outline-offset: 3px; }
+  .btn svg { width: 16px; height: 16px; }
+
+  .closing {
+    margin-top: 38px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.35rem, 4.6vw, 1.7rem);
+    line-height: 1.35;
+  }
+  .signature { margin-top: 10px; color: var(--ink-soft); }
+  .signature span { font-family: var(--serif); font-size: 1.4rem; font-style: italic; color: var(--gold-soft); }
+
+  footer {
+    padding: 28px var(--gutter) calc(28px + env(safe-area-inset-bottom));
+    text-align: center;
+    font-size: .75rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    background: var(--navy-950);
+  }
+
+  @media (min-width: 640px) {
+    .card { padding: 72px 56px 60px; }
+  }
+  @media (max-width: 899px) {
+    footer { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+  }
+
+  /* ---------- Floating glass nav + progress ---------- */
+  .navpill {
+    position: fixed;
+    z-index: 50;
+    left: 50%;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    display: flex; align-items: center; gap: 2px;
+    padding: 5px;
+    --glass-radius: 999px;
+    --glass-tint: rgba(10,20,48,.45);
+    --glass-blur: 18px;
+    transform: translate(-50%, 140%);
+    opacity: 0;
+    transition: transform .5s cubic-bezier(.2,.8,.2,1), opacity .4s ease;
+  }
+  .navpill.show { transform: translate(-50%, 0); opacity: 1; }
+  .navpill a {
+    position: relative;
+    padding: 9px 15px;
+    border-radius: 999px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: .74rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+    white-space: nowrap;
+    transition: color .25s ease, background .25s ease;
+  }
+  .navpill a:hover { color: var(--cream); }
+  .navpill a.active {
+    color: var(--navy-950);
+    background: linear-gradient(180deg, rgba(245,226,176,.95), rgba(212,178,106,.9));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+  }
+  .navpill a:focus-visible { outline: 2px solid var(--cream); outline-offset: 2px; }
+  .navpill__bar {
+    position: absolute; left: 22px; right: 22px; bottom: 1px;
+    height: 2px; border-radius: 2px; overflow: hidden;
+    background: rgba(255,255,255,.08);
+    pointer-events: none;
+  }
+  .navpill__bar i {
+    display: block; height: 100%; width: 100%;
+    transform-origin: left; transform: scaleX(0);
+    background: linear-gradient(90deg, var(--gold-soft), var(--gold));
+  }
+  @media (min-width: 900px) {
+    .navpill { top: 18px; bottom: auto; transform: translate(-50%, -160%); }
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .navpill { background: rgba(14,26,60,.95); }
+  }
+
+  /* ---------- Reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    .hero__lights span { animation: none; }
+    .navpill, .navpill a, .map-link { transition: none; }
+    html { scroll-behavior: auto; }
+    .js .reveal { opacity: 1; transform: none; transition: none; }
+    .beat__media img, .beat.in .beat__media img { transform: none; transition: none; }
+    .portrait__frame img { transform: none; transition: none; }
+    .scroll-cue span.line { animation: none; }
+    .btn { transition: none; }
+  }
+</style>
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<!-- ======================= HERO ======================= -->
+<header class="hero" id="top">
+  <div class="hero__lights" aria-hidden="true"><span class="l1"></span><span class="l2"></span><span class="l3"></span></div>
+  <div class="hero__year" aria-hidden="true">26</div>
+  <div class="hero__inner">
+    <div class="hero__text">
+      <div class="emblem glass reveal">
+        <img class="emblem__mark" src="logo-khtn-emblem-gold.png" alt="University of Science, VNU-HCM emblem" width="183" height="270">
+        <span class="emblem__divider" aria-hidden="true"></span>
+        <span class="emblem__text"><span data-field="university">University of Science, VNU-HCM</span><small data-field="universityVi">Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM</small></span>
+      </div>
+      <p class="eyebrow rule reveal">Class of 2026</p>
+      <h1 class="reveal d1">Four years.<br>One journey.<br><em>Thank you.</em></h1>
+      <p class="hero__lede reveal d2">A short story, and an invitation to celebrate it with me.</p>
+      <p class="hero__name glass reveal d3" data-field="name">Nguyễn Thành Tài</p>
+    </div>
+    <figure class="portrait reveal d1" style="margin:0">
+      <div class="portrait__mat glass" aria-hidden="true"></div>
+      <div class="portrait__frame">
+        <img src="3abe56ac-a6cb-4379-9c19-af29148e0c32.jpg" alt="Portrait of the graduate in a navy suit" width="960" height="958" fetchpriority="high">
+      </div>
+      <figcaption class="portrait__badge glass">The Graduate</figcaption>
+    </figure>
+  </div>
+  <a class="scroll-cue" href="#journey" aria-label="Scroll to read my story">
+    My story
+    <span class="line"></span>
+  </a>
+</header>
+
+<main>
+  <!-- ======================= JOURNEY ======================= -->
+  <section class="journey-intro" id="journey">
+    <p class="eyebrow rule reveal">The Journey</p>
+    <h2 class="reveal d1">Four years, <em>in a few pages</em></h2>
+    <p class="reveal d2">Before I invite you, let me tell you how I got here, and who walked with me.</p>
+  </section>
+
+  <section class="beat p-street">
+    <div class="beat__media"><img src="scooter-duo.jpg" alt="Two friends with a motorbike on a sunny city street" loading="lazy"></div>
+    <div class="beat__text"><div class="beat__panel glass">
+      <div class="beat__num reveal"><b>01</b><span class="eyebrow">The first year</span></div>
+      <h3 class="reveal d1">Figuring it out</h3>
+      <p class="reveal d2">I started out not knowing where anything was: the classrooms, the shortcuts, or honestly, myself. So I said yes to almost everything. New streets, new people, long rides across a city that slowly began to feel like home.</p>
+    </div>
+    <figure class="beat__photo glass reveal d1" aria-hidden="true"><img src="scooter-duo.jpg" alt="" loading="lazy"></figure>
+    </div>
+  </section>
+
+  <section class="beat p-trek">
+    <div class="beat__media"><img src="2bc8ae66-7778-469d-8e95-c61747786443.jpg" alt="Seven friends in rain ponchos giving thumbs up at a mountain summit" loading="lazy"></div>
+    <div class="beat__text"><div class="beat__panel glass">
+      <div class="beat__num reveal"><b>02</b><span class="eyebrow">What I learned</span></div>
+      <h3 class="reveal d1">Keep climbing</h3>
+      <p class="reveal d2">Not everything worth learning was in a textbook. I learned to keep going when the rain won't stop, to stay curious, to fail, laugh about it, and get back up. And I learned that the summit is always better reached together.</p>
+    </div>
+    <figure class="beat__photo glass reveal d1" aria-hidden="true"><img src="2bc8ae66-7778-469d-8e95-c61747786443.jpg" alt="" loading="lazy"></figure>
+    </div>
+  </section>
+
+  <section class="beat p-bbq">
+    <div class="beat__media"><img src="4701b47e-adce-4fee-8c33-6a4c6bb76524.jpg" alt="Six friends sharing a barbecue dinner around a low table at home" loading="lazy"></div>
+    <div class="beat__text"><div class="beat__panel glass">
+      <div class="beat__num reveal"><b>03</b><span class="eyebrow">The people</span></div>
+      <h3 class="reveal d1">A table full of brothers</h3>
+      <p class="reveal d2">To my roommates: the grill still smoking past midnight, talking about everything and nothing. You turned four walls into a home.</p>
+    </div>
+    <figure class="beat__photo glass reveal d1" aria-hidden="true"><img src="4701b47e-adce-4fee-8c33-6a4c6bb76524.jpg" alt="" loading="lazy"></figure>
+    </div>
+  </section>
+
+  <section class="beat p-boat">
+    <div class="beat__media"><img src="2ef3c096-4dfb-4d9d-89c2-c6ef1a019538.jpg" alt="Six friends standing at night in front of a lit-up river cruise boat" loading="lazy"></div>
+    <div class="beat__text"><div class="beat__panel glass">
+      <div class="beat__num reveal"><b>04</b><span class="eyebrow">After dark</span></div>
+      <h3 class="reveal d1">Nights by the river</h3>
+      <p class="reveal d2">The nights out by the river, when the city lights made every worry feel a little smaller. Some of my best lessons came after dark, standing next to all of you.</p>
+    </div>
+    <figure class="beat__photo glass reveal d1" aria-hidden="true"><img src="2ef3c096-4dfb-4d9d-89c2-c6ef1a019538.jpg" alt="" loading="lazy"></figure>
+    </div>
+  </section>
+
+  <section class="beat p-bar">
+    <div class="beat__media"><img src="3dc7c9f3-c5fe-46cf-be4c-c6a04bf47ade.jpg" alt="The graduate smiling with three mentors at a lively restaurant event" loading="lazy"></div>
+    <div class="beat__text"><div class="beat__panel glass">
+      <div class="beat__num reveal"><b>05</b><span class="eyebrow">Along the way</span></div>
+      <h3 class="reveal d1">The ones who believed</h3>
+      <p class="reveal d2">To the mentors and the wider community who opened doors, gave advice I didn't know I needed, and believed in me before I did.</p>
+    </div>
+    <figure class="beat__photo glass reveal d1" aria-hidden="true"><img src="3dc7c9f3-c5fe-46cf-be4c-c6a04bf47ade.jpg" alt="" loading="lazy"></figure>
+    </div>
+  </section>
+
+  <section class="beat beat--top p-family">
+    <div class="beat__media"><img src="bd927617-4bb9-4e62-af3c-0f087dc51060.jpg" alt="The graduate and a family member in conical hats on a river trip among coconut palms" loading="lazy"></div>
+    <div class="beat__text"><div class="beat__panel glass">
+      <div class="beat__num reveal"><b>06</b><span class="eyebrow">Where it all began</span></div>
+      <h3 class="reveal d1">Family</h3>
+      <p class="reveal d2">And to my family, who were there from the very first day, long before any of this began. Every step of this journey has your footprints in it.</p>
+    </div>
+    <figure class="beat__photo glass reveal d1" aria-hidden="true"><img src="bd927617-4bb9-4e62-af3c-0f087dc51060.jpg" alt="" loading="lazy"></figure>
+    </div>
+  </section>
+
+  <section class="outro">
+    <blockquote class="reveal">Four years taught me that <span>no one graduates alone.</span></blockquote>
+    <p class="reveal d1">So I'd love to celebrate with the people who made it possible.</p>
+  </section>
+
+  <!-- ======================= INVITATION ======================= -->
+  <section class="invite" id="invite">
+    <div class="invite__collage" aria-hidden="true">
+      <img src="2bc8ae66-7778-469d-8e95-c61747786443.jpg" alt="" loading="lazy">
+      <img src="4701b47e-adce-4fee-8c33-6a4c6bb76524.jpg" alt="" loading="lazy">
+      <img src="2ef3c096-4dfb-4d9d-89c2-c6ef1a019538.jpg" alt="" loading="lazy">
+      <img src="scooter-duo.jpg" alt="" loading="lazy">
+      <img src="3dc7c9f3-c5fe-46cf-be4c-c6a04bf47ade.jpg" alt="" loading="lazy">
+      <img src="bd927617-4bb9-4e62-af3c-0f087dc51060.jpg" alt="" loading="lazy">
+    </div>
+    <canvas id="confetti" aria-hidden="true"></canvas>
+
+    <div class="card glass reveal">
+      <div class="card__crest"><img src="logo-khtn-gold.png" alt="University of Science, VNU-HCM emblem: Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM" width="493" height="405" loading="lazy"></div>
+      <p class="eyebrow">You're invited</p>
+      <h2>Come celebrate</h2>
+      <p class="card__lead">the graduation of</p>
+      <p class="card__name" data-field="name">Nguyễn Thành Tài</p>
+      <p class="card__uni">Class of 2026 · <span data-field="university">University of Science, VNU-HCM</span></p>
+      <p class="card__uni card__uni--vi" data-field="universityVi">Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM</p>
+
+      <div class="date glass-lite" aria-label="Sunday, 29 November 2026">
+        <span class="date__side">Sunday</span>
+        <span class="date__day">29</span>
+        <span class="date__side">Nov 2026</span>
+      </div>
+
+      <dl class="details">
+        <div class="detail glass-lite"><dt>Time</dt><dd data-field="time">10:00 – 11:00 AM (Vietnam time)</dd></div>
+        <div class="detail glass-lite"><dt>Venue</dt><dd><span data-field="venue">227 Nguyễn Văn Cừ, Phường Chợ Quán, TP.HCM</span><br>
+          <a class="map-link glass-lite" id="map-link" href="https://www.google.com/maps/search/?api=1&amp;query=227%20Nguy%E1%BB%85n%20V%C4%83n%20C%E1%BB%AB%2C%20Ph%C6%B0%E1%BB%9Dng%20Ch%E1%BB%A3%20Qu%C3%A1n%2C%20TP.HCM" target="_blank" rel="noopener">View on map →</a></dd></div>
+      </dl>
+
+      <div class="countdown" id="countdown" aria-live="off">
+        <div class="glass-lite"><b data-cd="d">--</b><small>Days</small></div>
+        <div class="glass-lite"><b data-cd="h">--</b><small>Hours</small></div>
+        <div class="glass-lite"><b data-cd="m">--</b><small>Mins</small></div>
+        <div class="glass-lite"><b data-cd="s">--</b><small>Secs</small></div>
+      </div>
+      <p class="countdown-note" id="countdown-note"></p>
+
+      <div class="actions">
+        <button class="btn" id="add-cal" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          Add to calendar
+        </button>
+      </div>
+
+      <p class="closing">Your presence would mean the world to me.</p>
+      <p class="signature">With love and gratitude,<br><span data-field="name">Nguyễn Thành Tài</span></p>
+    </div>
+  </section>
+</main>
+
+<nav class="navpill glass" id="navpill" aria-label="Sections">
+  <a href="#top" data-sec="top">Home</a>
+  <a href="#journey" data-sec="journey">Story</a>
+  <a href="#invite" data-sec="invite">Invitation</a>
+  <span class="navpill__bar" aria-hidden="true"><i id="progress"></i></span>
+</nav>
+
+<footer>Class of 2026 · Sunday, 29 November 2026</footer>
+
+<script>
+/* =====================================================================
+   EDIT HERE  -  fill in your details. Everything on the page updates.
+   ===================================================================== */
+const INVITE = {
+  name:         "Nguyễn Thành Tài",
+  university:   "University of Science, VNU-HCM",
+  universityVi: "Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM",
+  time:         "10:00 – 11:00 AM (Vietnam time)",              // what guests see
+  venue:        "227 Nguyễn Văn Cừ, Phường Chợ Quán, TP.HCM",    // shown on the card + used for the map link
+
+  // Used for the countdown and the "Add to calendar" file.
+  // 24-hour "HH:MM", in the timezone given by utcOffset (Vietnam = "+07:00").
+  date:      "2026-11-29",          // Sunday, 29 November 2026
+  startTime: "10:00",
+  endTime:   "11:00",
+  utcOffset: "+07:00"
+};
+/* ===================================================================== */
+
+(function () {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- Fill placeholders ---- */
+  document.querySelectorAll('[data-field]').forEach(el => {
+    const v = INVITE[el.dataset.field];
+    if (v) el.textContent = v;
+  });
+  if (INVITE.name && !/^\[/.test(INVITE.name)) {
+    document.title = "You're Invited · " + INVITE.name + " · Class of 2026";
+  }
+
+  window.addEventListener('load', () => document.body.classList.add('loaded'));
+  requestAnimationFrame(() => setTimeout(() => document.body.classList.add('loaded'), 50));
+
+  /* ---- Reveal on scroll ---- */
+  const revealEls = document.querySelectorAll('.reveal, .beat');
+  if ('IntersectionObserver' in window && !reduceMotion) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.18, rootMargin: '0px 0px -5% 0px' });
+    revealEls.forEach(el => io.observe(el));
+    // Belt-and-braces: also reveal anything scrolled into view, in case an
+    // observer callback is missed (some in-app browsers / jump-to-anchor cases).
+    let pending = false;
+    const sweep = () => {
+      pending = false;
+      const vh = window.innerHeight;
+      revealEls.forEach(el => {
+        if (el.classList.contains('in')) return;
+        const r = el.getBoundingClientRect();
+        if (r.top < vh * 0.92 && r.bottom > 0) el.classList.add('in');
+      });
+    };
+    const onSweep = () => { if (!pending) { pending = true; requestAnimationFrame(sweep); } };
+    window.addEventListener('scroll', onSweep, { passive: true });
+    window.addEventListener('resize', onSweep);
+    window.addEventListener('load', onSweep);
+  } else {
+    revealEls.forEach(el => el.classList.add('in'));
+  }
+
+  /* ---- Parallax on journey photos (transform-based, works on iOS) ---- */
+  const layers = Array.from(document.querySelectorAll('.beat__media'));
+  if (!reduceMotion && layers.length) {
+    let ticking = false;
+    const update = () => {
+      const vh = window.innerHeight;
+      layers.forEach(layer => {
+        const r = layer.parentElement.getBoundingClientRect();
+        if (r.bottom < -100 || r.top > vh + 100) return;
+        const progress = (r.top + r.height / 2 - vh / 2) / (vh + r.height); // ~ -0.5..0.5
+        layer.style.transform = 'translate3d(0,' + (progress * -12).toFixed(2) + '%,0)';
+      });
+      ticking = false;
+    };
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
+  }
+
+  /* ---- Floating glass nav: show after the hero, track section + progress ---- */
+  const nav = document.getElementById('navpill');
+  const bar = document.getElementById('progress');
+  if (nav) {
+    const links = Array.from(nav.querySelectorAll('a[data-sec]'));
+    const secs = links.map(a => document.getElementById(a.dataset.sec));
+    let navPending = false;
+    const navUpdate = () => {
+      navPending = false;
+      const y = window.scrollY, vh = window.innerHeight;
+      const max = Math.max(1, document.documentElement.scrollHeight - vh);
+      nav.classList.toggle('show', y > vh * 0.6);
+      bar.style.transform = 'scaleX(' + Math.min(1, y / max).toFixed(4) + ')';
+      let current = 0;
+      secs.forEach((s, i) => { if (s && s.getBoundingClientRect().top < vh * 0.45) current = i; });
+      links.forEach((a, i) => a.classList.toggle('active', i === current));
+    };
+    const onNav = () => { if (!navPending) { navPending = true; requestAnimationFrame(navUpdate); } };
+    window.addEventListener('scroll', onNav, { passive: true });
+    window.addEventListener('resize', onNav);
+    navUpdate();
+  }
+
+  /* ---- Countdown ---- */
+  const timeOk = t => /^\d{1,2}:\d{2}$/.test(t || '');
+  const hhmm = t => t.split(':').map(x => x.padStart(2, '0')).join(':');
+  const offset = /^[+-]\d{2}:\d{2}$/.test(INVITE.utcOffset || '') ? INVITE.utcOffset : '+07:00';
+  // Absolute instant in the event's own timezone, so guests anywhere see the right countdown.
+  const at = t => new Date(INVITE.date + 'T' + (timeOk(t) ? hhmm(t) : '00:00') + ':00' + offset);
+  function eventStart() { return at(INVITE.startTime); }
+  const target = eventStart();
+
+  /* ---- Map link from the venue text ---- */
+  const mapLink = document.getElementById('map-link');
+  if (mapLink && INVITE.venue) {
+    mapLink.href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(INVITE.venue);
+  }
+  const cd = {};
+  document.querySelectorAll('[data-cd]').forEach(el => cd[el.dataset.cd] = el);
+  const note = document.getElementById('countdown-note');
+  const pad = n => String(n).padStart(2, '0');
+  function tick() {
+    let diff = target - new Date();
+    if (diff <= 0) {
+      cd.d.textContent = cd.h.textContent = cd.m.textContent = cd.s.textContent = '00';
+      const endT = timeOk(INVITE.endTime) ? at(INVITE.endTime) : new Date(target.getTime() + 3 * 3600e3);
+      note.textContent = new Date() < endT ? "It's happening now. See you there!" : 'Thank you for celebrating with me.';
+      clearInterval(timer);
+      return;
+    }
+    const s = Math.floor(diff / 1000);
+    cd.d.textContent = Math.floor(s / 86400);
+    cd.h.textContent = pad(Math.floor(s % 86400 / 3600));
+    cd.m.textContent = pad(Math.floor(s % 3600 / 60));
+    cd.s.textContent = pad(s % 60);
+    note.textContent = 'until we celebrate';
+  }
+  const timer = setInterval(tick, 1000);
+  tick();
+
+  /* ---- Add to calendar (.ics download) ---- */
+  function icsEscape(str) {
+    return String(str).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+  }
+  function buildICS() {
+    const ymd = INVITE.date.replace(/-/g, '');
+    const utc = dt => dt.getUTCFullYear() + pad(dt.getUTCMonth() + 1) + pad(dt.getUTCDate()) + 'T' +
+                      pad(dt.getUTCHours()) + pad(dt.getUTCMinutes()) + pad(dt.getUTCSeconds()) + 'Z';
+    let dtStart, dtEnd;
+    if (timeOk(INVITE.startTime)) {
+      const s = at(INVITE.startTime);
+      const e = timeOk(INVITE.endTime) ? at(INVITE.endTime) : new Date(s.getTime() + 3 * 3600e3);
+      dtStart = 'DTSTART:' + utc(s);   // stored in UTC; calendars convert to each guest's local time
+      dtEnd = 'DTEND:' + utc(e);
+    } else {
+      dtStart = 'DTSTART;VALUE=DATE:' + ymd;
+      const [y, mo, d] = INVITE.date.split('-').map(Number);
+      const next = new Date(Date.UTC(y, mo - 1, d + 1));
+      dtEnd = 'DTEND;VALUE=DATE:' + next.getUTCFullYear() + pad(next.getUTCMonth() + 1) + pad(next.getUTCDate());
+    }
+    const stamp = utc(new Date());
+    const lines = [
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Graduation Invitation//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      'UID:graduation-' + ymd + '-' + Math.random().toString(36).slice(2) + '@invite',
+      'DTSTAMP:' + stamp,
+      dtStart, dtEnd,
+      'SUMMARY:' + icsEscape('Graduation celebration - ' + INVITE.name),
+      'LOCATION:' + icsEscape(INVITE.venue),
+      'DESCRIPTION:' + icsEscape('Class of 2026 - ' + INVITE.university + '\nTime: ' + INVITE.time + '\nYour presence would mean the world to me.'),
+      'BEGIN:VALARM', 'TRIGGER:-P1D', 'ACTION:DISPLAY', 'DESCRIPTION:Graduation celebration tomorrow', 'END:VALARM',
+      'END:VEVENT', 'END:VCALENDAR'
+    ];
+    return lines.join('\r\n');
+  }
+  document.getElementById('add-cal').addEventListener('click', () => {
+    const blob = new Blob([buildICS()], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'graduation-29-nov-2026.ics';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  });
+
+  /* ---- Gold confetti when the invitation comes into view ---- */
+  const canvas = document.getElementById('confetti');
+  const section = document.getElementById('invite');
+  if (!reduceMotion && canvas && canvas.getContext && 'IntersectionObserver' in window) {
+    const ctx = canvas.getContext('2d');
+    const colors = ['#d4b26a', '#e9d6a5', '#a9843c', '#f6efe0'];
+    let parts = [], running = false, w = 0, h = 0, dpr = 1, startT = 0;
+    const size = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = section.clientWidth; h = section.clientHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    const spawn = n => {
+      for (let i = 0; i < n; i++) {
+        parts.push({
+          x: Math.random() * w,
+          y: -20 - Math.random() * h * 0.6,
+          r: 2 + Math.random() * 4,
+          vy: 0.6 + Math.random() * 1.4,
+          vx: -0.4 + Math.random() * 0.8,
+          rot: Math.random() * Math.PI,
+          vr: -0.05 + Math.random() * 0.1,
+          sway: Math.random() * Math.PI * 2,
+          c: colors[(Math.random() * colors.length) | 0],
+          shape: Math.random() < 0.35 ? 'spark' : 'rect'
+        });
+      }
+    };
+    const draw = t => {
+      ctx.clearRect(0, 0, w, h);
+      const elapsed = t - startT;
+      parts.forEach(p => {
+        p.sway += 0.03;
+        p.x += p.vx + Math.sin(p.sway) * 0.5;
+        p.y += p.vy;
+        p.rot += p.vr;
+        const fade = elapsed > 6000 ? Math.max(0, 1 - (elapsed - 6000) / 2500) : 1;
+        ctx.globalAlpha = 0.85 * fade;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.c;
+        if (p.shape === 'spark') {
+          ctx.beginPath();
+          const s = p.r * 1.4;
+          ctx.moveTo(0, -s); ctx.lineTo(s * .3, 0); ctx.lineTo(0, s); ctx.lineTo(-s * .3, 0);
+          ctx.closePath(); ctx.fill();
+        } else {
+          ctx.fillRect(-p.r, -p.r * 0.4, p.r * 2, p.r * 0.8);
+        }
+        ctx.restore();
+      });
+      parts = parts.filter(p => p.y < h + 20);
+      if (elapsed < 8500 && parts.length) requestAnimationFrame(draw);
+      else { ctx.clearRect(0, 0, w, h); running = false; }
+    };
+    const burst = () => {
+      if (running) return;
+      running = true;
+      size();
+      parts = [];
+      spawn(Math.round(Math.min(160, w / 5)));
+      startT = performance.now();
+      requestAnimationFrame(draw);
+    };
+    const cio = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) burst(); });
+    }, { threshold: 0.35 });
+    cio.observe(section);
+    window.addEventListener('resize', () => { if (running) size(); });
+  }
+})();
+</script>
+</body>
+</html>
