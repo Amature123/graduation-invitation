@@ -509,13 +509,45 @@
     }
   }
 
+  /* Wide (landscape) photos on phones: a full-bleed crop would cut people off at the edges,
+     so show the whole photo in the glass frame above the text, over a blurred backdrop. */
+  @media (max-width: 899px) {
+    .beat--wide { align-items: center; }
+    .beat--wide .beat__media img,
+    .beat--wide.in .beat__media img {
+      filter: blur(24px) saturate(1.15) brightness(.6);
+      transform: scale(1.2);
+      transition: none;
+    }
+    .beat--wide .beat__text {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding-top: 72px;
+    }
+    .beat--wide .beat__photo {
+      display: block;
+      order: -1;
+      padding: 8px;
+      --glass-radius: 22px;
+      --glass-tint: rgba(255,255,255,.05);
+      --glass-blur: 14px;
+    }
+    .beat--wide .beat__photo img {
+      display: block;
+      width: 100%; height: auto;
+      border-radius: 15px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 10px 24px -10px rgba(0,0,0,.6);
+    }
+  }
+
   /* Per-photo focal points (keeps faces in frame) */
   .p-street img { object-position: 62% 30%; }
   .p-trek   img { object-position: 55% 45%; }
   .p-bbq    img { object-position: 55% 40%; }
   .p-boat   img { object-position: 46% 58%; }
   .p-bar    img { object-position: 48% 42%; }
-  .p-family img { object-position: 48% 30%; }
+  .p-family img { object-position: 50% 35%; }
 
   .outro {
     padding: 110px var(--gutter);
@@ -917,15 +949,15 @@
     </div>
   </section>
 
-  <section class="beat p-family">
-    <div class="beat__media"><img src="family.jpg" alt="Studio family portrait of the graduate with their family" loading="lazy"></div>
+  <section class="beat beat--wide p-family">
+    <div class="beat__media"><img src="family-portrait.jpg" alt="Studio family portrait of the graduate with their family" loading="lazy"></div>
     <div class="beat__veil" aria-hidden="true"></div>
     <div class="beat__text"><div class="beat__panel glass">
       <div class="beat__num reveal"><b>06</b><span class="eyebrow">Where it all began</span></div>
       <h3 class="reveal d1">Family</h3>
       <p class="reveal d2">And to my family, who were there from the very first day, long before any of this began. Every step of this journey has your footprints in it.</p>
     </div>
-    <figure class="beat__photo glass" aria-hidden="true"><img src="family.jpg" alt="" loading="lazy"></figure>
+    <figure class="beat__photo glass" aria-hidden="true"><img src="family-portrait.jpg" alt="" loading="lazy"></figure>
     </div>
   </section>
 
@@ -942,7 +974,7 @@
       <img src="2ef3c096-4dfb-4d9d-89c2-c6ef1a019538.jpg" alt="" loading="lazy">
       <img src="scooter-selfie.jpg" alt="" loading="lazy">
       <img src="3dc7c9f3-c5fe-46cf-be4c-c6a04bf47ade.jpg" alt="" loading="lazy">
-      <img src="family.jpg" alt="" loading="lazy">
+      <img src="family-portrait.jpg" alt="" loading="lazy">
     </div>
     <canvas id="confetti" aria-hidden="true"></canvas>
 
